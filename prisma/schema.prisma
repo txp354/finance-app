@@ -1,0 +1,54 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum BillingCycle {
+  MONTHLY
+  ANNUAL
+  WEEKLY
+}
+
+model Transaction {
+  id          String          @id @default(uuid())
+  type        TransactionType
+  amount      Float
+  category    String          // Rent, Food, Groceries, Utilities, Subscriptions, Salary, etc.
+  description String?
+  date        DateTime        @default(now())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model Subscription {
+  id              String       @id @default(uuid())
+  name            String       // e.g., Netflix, Gym, Rent, Internet
+  amount          Float
+  billingCycle    BillingCycle @default(MONTHLY)
+  category        String       @default("Subscriptions")
+  nextRenewalDate DateTime
+  isActive        Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model StockHolding {
+  id             String    @id @default(uuid())
+  ticker         String    @unique // Upper-cased (e.g., AAPL, NVDA, VOO)
+  shares         Float     // Supports fractional shares (e.g., 2.5)
+  costBasis      Float?    // Average purchase price per share (optional)
+  lastClosePrice Float?    // Most recent closing price fetched
+  currency       String    @default("USD")
+  lastFetchedAt  DateTime? // Timestamp of the last successful price update
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
